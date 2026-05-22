@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>26字母汉字密语转换器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微软雅黑", sans-serif;
+        }
+        body {
+            background: #222;
+            color: #fff;
+            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #4fc3f7;
+        }
+        .box {
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            background: #444;
+            border: 1px solid #555;
+            color: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            resize: none;
+            margin: 10px 0;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+        .btn1 {background: #2196F3; color: #fff;}
+        .btn2 {background: #009688; color: #fff;}
+        .btn3 {background: #ff9800; color: #fff;}
+        .btn4 {background: #f44336; color: #fff;}
+        button:hover {opacity: 0.85;}
+        .tip {
+            color: #ccc;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        /* 弹窗样式 */
+        .mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .popup {
+            width: 400px;
+            background: #333;
+            padding: 25px;
+            border-radius: 8px;
+        }
+        .popup-text {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        .close-btn {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .confirm {
+            background: #2196F3;
+            color: #fff;
+            padding: 6px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+        }
+        .guide-btn {
+            background: #009688;
+            color: #fff;
+            padding: 6px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+        }
+        /* 教程弹窗层级更高 */
+        #guideMask {
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <!-- 首页提示弹窗 -->
+    <div class="mask" id="popMask">
+        <div class="popup">
+            使用注意事项（必看！）<br>
+            1.你的设备一定自带翻译软件，在翻译软件上下载本地翻译包<br>
+            2.使用翻译软件把你想说的中文翻译成英文<br>
+            3.使用翻译软件时全程断网！不要联网翻译！使用完后记得清除本地数据（比如翻译历史）
+            <div class="popup-text">
+                欢迎使用字母汉字密语转换器<br>
+                本工具仅本地转换，不会上传任何数据<br>
+                请勿用于违规违法用途
+            </div>
+            <div class="close-btn">
+                <button class="guide-btn" onclick="openGuide()">教程</button>
+                <button class="confirm" onclick="closePop()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 教程弹窗 -->
+    <div class="mask" id="guideMask" style="display: none;">
+        <div class="popup">
+            使用教程：<br>
+            1.将英文输入进去点击“密语转换”，转换完后可以点击“复制密语”将密语复制到你的剪贴板上<br>
+            2.将密语输入进下面转换成英文。。。不用教了吧
+            <div class="popup-text">
+                使用教程说明<br>
+                1.左侧区域：英文一键转为汉字密语<br>
+                2.右侧区域：汉字密语还原成原始英文<br>
+                3.转换完毕点击按钮即可一键复制内容<br>
+                4.所有运算仅在本机完成，无数据上传
+            </div>
+            <!-- 自定义内容结束 -->
+            <div class="close-btn">
+                <button class="confirm" onclick="closeGuide()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <h2>字母↔汉字自然密语转换器</h2>
+
+    <div class="box">
+        <p>输入小写英文（空格自动转#）</p>
+        <textarea id="enInput" placeholder="输入英文（小写）"></textarea>
+        <div class="btn-group">
+            <button class="btn1" onclick="enToMi()">英文转密语</button>
+            <button class="btn3" onclick="copyMi()">复制密语</button>
+        </div>
+        <p class="tip">转换结果：</p>
+        <textarea id="miOutput" readonly></textarea>
+    </div>
+
+    <div class="box">
+        <p>输入汉字密语（#代表空格）</p>
+        <textarea id="miInput" placeholder="输入对应汉字密语，#为空格"></textarea>
+        <div class="btn-group">
+            <button class="btn2" onclick="miToEn()">密语转英文</button>
+            <button class="btn4" onclick="copyEn()">复制英文</button>
+        </div>
+        <p class="tip">转换结果：</p>
+        <textarea id="enOutput" readonly></textarea>
+    </div>
+
+<script>
+// 关闭首页弹窗
+function closePop(){
+    document.getElementById('popMask').style.display = 'none';
+}
+// 打开教程弹窗
+function openGuide(){
+    document.getElementById('guideMask').style.display = 'flex';
+}
+// 关闭教程弹窗
+function closeGuide(){
+    document.getElementById('guideMask').style.display = 'none';
+}
+
+// 一一对应映射
+const enToHan = {
+    a:'林',b:'火',c:'石',d:'风',e:'山',f:'田',
+    g:'雨',h:'雷',i:'电',j:'云',k:'川',l:'月',
+    m:'水',n:'天',o:'木',p:'金',q:'星',r:'人',
+    s:'飞',t:'鱼',u:'门',v:'土',w:'心',x:'光',
+    y:'龙',z:'梦',' ':'#'
+};
+// 反向映射
+const hanToEn = {};
+for(let k in enToHan){
+    hanToEn[enToHan[k]] = k;
+}
+
+// 英文转密语
+function enToMi(){
+    let str = document.getElementById('enInput').value.toLowerCase();
+    let res = '';
+    for(let s of str){
+        res += enToHan[s] || s;
+    }
+    document.getElementById('miOutput').value = res;
+}
+
+// 密语转英文
+function miToEn(){
+    let str = document.getElementById('miInput').value;
+    let res = '';
+    for(let s of str){
+        res += hanToEn[s] || s;
+    }
+    document.getElementById('enOutput').value = res;
+}
+
+// 兼容所有浏览器复制方法
+function copyMi(){
+    let txt = document.getElementById('miOutput');
+    txt.select();
+    document.execCommand('copy');
+    alert('密语复制成功！');
+}
+function copyEn(){
+    let txt = document.getElementById('enOutput');
+    txt.select();
+    document.execCommand('copy');
+    alert('英文复制成功！');
+}
+</script>
+</body>
+</html>
